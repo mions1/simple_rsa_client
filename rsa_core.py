@@ -69,6 +69,39 @@ def load_keys(public_file="public_key", private_file="private_key", passphrase="
 	
 	return keys
 
+def encryption(message, key):
+	""" Encrypt the message with the key
+
+	Args:
+		message (str): message to encrypt
+		key (str): key for encryption
+
+	Returns:
+		str: cipher message
+	"""
+	key = RSA.importKey(key)
+	rsa = PKCS1_OAEP.new(key)
+	cipher_message = rsa.encrypt(message.encode("utf-8"))
+	cipher_message = base64.b64encode(cipher_message).decode()
+	return cipher_message
+
+def decryption(cipher_message, key):
+	""" Decrypt the cipher message with the key
+
+	Args:
+		cipher_message (str): cipher message to decrypt
+		key (str): key for decryption
+
+	Returns:
+		str: decrypted message
+	"""
+	key = RSA.importKey(key, "password")
+	rsa = PKCS1_OAEP.new(key)
+	cipher_message = base64.b64decode(cipher_message.encode())
+	message = rsa.decrypt(cipher_message)
+	message = message.decode()
+	return message
+
 if __name__=="__main__":
 
 	print("Do you want:\n 1. Generate new keys\n 2. Load from files?")
@@ -86,6 +119,31 @@ if __name__=="__main__":
 	private_key = keys["private_key"]
 
 	save_keys(keys)
+
+	choose = 4
+	while choose != 0:
+		print("Do you want:\n 1. Encrypt\n 2. Decrypt\n 3. Decrypt the last message you have encrypted?\nType 0 to exit")
+		choose = int(input())
+
+		if choose == 1:
+			message = input("Write a message to encrypt: ")
+			cipher = encryption(message, public_key)
+			print("---------------- CHIPHER MESSAGE IS ----------- ")
+			print(cipher)
+		
+		elif choose == 2:
+			cipher_msg = input("Write the cipher message: ")
+			message = decryption(cipher_msg, private_key)
+			print("----------------- PLAIN MESSAGE ---------------")
+			print(message)
+
+		elif choose == 3:
+			if not cipher:
+				print("WANING: To choose this option, you have to perform an encryption first")
+				continue
+			message = decryption(cipher, private_key)
+			print("----------------- PLAIN MESSAGE ---------------")
+			print(message)
 
 
 		
