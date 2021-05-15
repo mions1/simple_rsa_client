@@ -40,8 +40,17 @@ class RSAGui(qt.QGridLayout):
 		self._f_output_text = qt.QVBoxLayout()
 		self._tb_output = qt.QTextEdit()
 
+		self._f_output_buttons = qt.QHBoxLayout()
+		self._b_copy_to_clipboard = qt.QPushButton("Copy output to clipboard")
+		self._b_switch_input_output = qt.QPushButton("Switch input/output")
+		self._f_output_buttons.addWidget(self._b_copy_to_clipboard)
+		self._f_output_buttons.addWidget(self._b_switch_input_output)
+
 		self._tb_output.setPlaceholderText("Output text")
 		self._f_output_text.addWidget(self._tb_output)
+		self._f_output_text.addLayout(self._f_output_buttons)
+
+
 
 		#-------------- Frame keys generation -----------------------------------------
 		self._f_keys = qt.QVBoxLayout()
@@ -64,6 +73,8 @@ class RSAGui(qt.QGridLayout):
 
 		#---------- <ADD HERE OTHER FRAMES AND WIDGETS TO CREATE> -------------
 
+		self._b_switch_input_output.clicked.connect(lambda: self.b_switch_input_output())
+		self._b_copy_to_clipboard.clicked.connect(lambda: self.b_copy_to_clipboard())
 		self._b_generate.clicked.connect(lambda: self.b_generate_keys())
 		self._b_get_keys_from_file.clicked.connect(lambda: self.b_get_from_file())
 		self._b_encrypt.clicked.connect(lambda: self.b_encrypt())
@@ -126,6 +137,21 @@ class RSAGui(qt.QGridLayout):
 		cipher = self._tb_input.toPlainText()
 		message = rsa.decryption(cipher, self.keys["private_key"])
 		self._tb_output.setText(str(message))
+
+	def b_copy_to_clipboard(self):
+		text = self._tb_output.toPlainText()
+		if text:
+			if text != "":
+				cb = qt.QApplication.clipboard()
+				cb.clear(mode=cb.Clipboard )
+				cb.setText(text, mode=cb.Clipboard)
+
+	def b_switch_input_output(self):
+		input_text = self._tb_input.toPlainText()
+		output_text = self._tb_output.toPlainText()
+
+		self._tb_output.setText(str(input_text))
+		self._tb_input.setText(str(output_text))
 
 
 if __name__=='__main__':
